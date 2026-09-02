@@ -1,4 +1,4 @@
-/* ── 类型 ─────────────────────────────────────────── */
+/* ── Types ────────────────────────────────────────── */
 export type Priority = "high" | "mid" | "low";
 
 export interface Task {
@@ -15,12 +15,12 @@ export const MODE_META: Record<
   Mode,
   { label: string; en: string; minutes: number; color: string }
 > = {
-  focus: { label: "专注", en: "FOCUS", minutes: 25, color: "var(--cinnabar)" },
-  short: { label: "短休", en: "PAUSE", minutes: 5, color: "var(--jade)" },
-  long: { label: "长休", en: "RENEW", minutes: 15, color: "var(--amber)" },
+  focus: { label: "Focus", en: "FOCUS", minutes: 25, color: "var(--cinnabar)" },
+  short: { label: "Break", en: "PAUSE", minutes: 5, color: "var(--jade)" },
+  long: { label: "Long Break", en: "RENEW", minutes: 15, color: "var(--amber)" },
 };
 
-/* ── 日期工具 ─────────────────────────────────────── */
+/* ── Date utilities ───────────────────────────────── */
 export const dateKey = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
     d.getDate()
@@ -32,16 +32,16 @@ export const addDays = (d: Date, n: number) => {
   return x;
 };
 
-/** 本周周一 */
+/** Monday of the week containing d */
 export const mondayOf = (d: Date) => {
   const x = new Date(d);
   const day = (x.getDay() + 6) % 7;
   return addDays(x, -day);
 };
 
-export const WEEKDAYS = ["一", "二", "三", "四", "五", "六", "日"];
+export const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-/* ── 持久化 ───────────────────────────────────────── */
+/* ── Persistence ──────────────────────────────────── */
 const NS = "flowdesk.v1.";
 
 export function load<T>(key: string, fallback: T): T {
@@ -58,7 +58,7 @@ export function save<T>(key: string, value: T) {
   try {
     localStorage.setItem(NS + key, JSON.stringify(value));
   } catch {
-    /* 存储不可用时静默 */
+    /* storage unavailable — fail silently */
   }
 }
 
@@ -67,7 +67,7 @@ export const uid = () =>
     ? crypto.randomUUID()
     : Math.random().toString(36).slice(2) + Date.now().toString(36));
 
-/* ── 种子数据 ─────────────────────────────────────── */
+/* ── Seed data ────────────────────────────────────── */
 export const seedTasks = (): Task[] => {
   const now = Date.now();
   const mk = (title: string, priority: Priority, done = false, i = 0): Task => ({
@@ -78,37 +78,37 @@ export const seedTasks = (): Task[] => {
     createdAt: now - i * 60000,
   });
   return [
-    mk("撰写季度复盘报告第二章", "high"),
-    mk("审阅新版落地页设计稿", "high"),
-    mk("整理用户访谈纪要并归档", "mid"),
-    mk("给团队周会准备三页提纲", "mid"),
-    mk("回复合作方的排期邮件", "low"),
-    mk("更新本地开发环境依赖", "low", true, 6),
+    mk("Draft chapter two of the quarterly review", "high"),
+    mk("Review the new landing page mockups", "high"),
+    mk("Organize and archive user interview notes", "mid"),
+    mk("Prep a three-page outline for team standup", "mid"),
+    mk("Reply to the partner scheduling email", "low"),
+    mk("Update local dev environment dependencies", "low", true, 6),
   ];
 };
 
-/** 生成过去 12 周的专注分钟数（含今日为 0），形态自然有起伏 */
+/** Focus minutes for the past 12 weeks (today starts at 0), with a natural ebb and flow */
 export const seedHistory = (): Record<string, number> => {
   const out: Record<string, number> = {};
   const today = new Date();
   for (let i = 83; i >= 1; i--) {
     const d = addDays(today, -i);
-    const dow = (d.getDay() + 6) % 7; // 0=周一
+    const dow = (d.getDay() + 6) % 7; // 0 = Monday
     const wave = Math.sin(i / 5.2) * 0.5 + 0.5;
     const weekend = dow >= 5 ? 0.45 : 1;
     const base = 40 + wave * 140 * weekend + ((i * 37) % 55);
-    const skipped = (i * 13) % 17 === 0 ? 0 : 1; // 偶尔空白日
+    const skipped = (i * 13) % 17 === 0 ? 0 : 1; // occasional blank day
     out[dateKey(d)] = Math.round(base * skipped * weekend);
   }
   out[dateKey(today)] = 0;
   return out;
 };
 
-/* ── 统计 ─────────────────────────────────────────── */
+/* ── Stats ────────────────────────────────────────── */
 export const totalMinutes = (h: Record<string, number>) =>
   Object.values(h).reduce((a, b) => a + b, 0);
 
-/** 连续天数（今日有记录则计入，往前推） */
+/** Day streak (counts today if logged, then walks backward) */
 export const streakOf = (h: Record<string, number>) => {
   let streak = 0;
   let d = new Date();
@@ -124,12 +124,12 @@ export const bestDay = (h: Record<string, number>) =>
   Math.max(0, ...Object.values(h));
 
 export const fmtMinutes = (m: number) =>
-  m >= 60 ? `${Math.floor(m / 60)} 时 ${m % 60 ? (m % 60) + " 分" : ""}` : `${m} 分`;
+  m >= 60 ? `${Math.floor(m / 60)}h ${m % 60 ? (m % 60) + "m" : ""}`.trim() : `${m}m`;
 
 export const fmtHM = (m: number) =>
   `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 
-/* ── 提示音（WebAudio 双音钟鸣） ─────────────────── */
+/* ── Chimes (WebAudio two-tone bell) ──────────────── */
 let audioCtx: AudioContext | null = null;
 
 export function chime(kind: "done" | "start" | "tick" = "done") {
@@ -154,12 +154,12 @@ export function chime(kind: "done" | "start" | "tick" = "done") {
       osc.stop(t + 0.6);
     });
   } catch {
-    /* 无音频环境时忽略 */
+    /* ignore when no audio environment is available */
   }
 }
 
 export const PRIORITY_META: Record<Priority, { label: string; cls: string; dot: string }> = {
-  high: { label: "紧急", cls: "var(--cinnabar-soft)", dot: "var(--cinnabar)" },
-  mid: { label: "常规", cls: "var(--amber-soft)", dot: "var(--amber)" },
-  low: { label: "从容", cls: "var(--jade-soft)", dot: "var(--jade)" },
+  high: { label: "High", cls: "var(--cinnabar-soft)", dot: "var(--cinnabar)" },
+  mid: { label: "Normal", cls: "var(--amber-soft)", dot: "var(--amber)" },
+  low: { label: "Low", cls: "var(--jade-soft)", dot: "var(--jade)" },
 };

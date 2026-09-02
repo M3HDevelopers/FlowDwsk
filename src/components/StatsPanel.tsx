@@ -45,7 +45,7 @@ function ChartTip({ active, payload, label }: { active?: boolean; payload?: { va
     <div className="panel rounded-lg px-3 py-2 text-xs">
       <p style={{ color: "var(--ink-faint)" }}>{label}</p>
       <p className="font-display tabular mt-0.5 text-sm font-bold" style={{ color: "var(--cinnabar)" }}>
-        {payload[0].value} 分钟
+        {payload[0].value} min
       </p>
     </div>
   );
@@ -55,7 +55,7 @@ export default function StatsPanel({ history, tasksDone }: Props) {
   const today = new Date();
   const todayKey = dateKey(today);
 
-  /* 近 7 天柱状数据 */
+  /* Bar-chart data for the last 7 days */
   const week = useMemo(
     () =>
       Array.from({ length: 7 }, (_, i) => {
@@ -63,7 +63,7 @@ export default function StatsPanel({ history, tasksDone }: Props) {
         const k = dateKey(d);
         return {
           key: k,
-          label: i === 6 ? "今天" : `周${WEEKDAYS[(d.getDay() + 6) % 7]}`,
+          label: i === 6 ? "Today" : WEEKDAYS[(d.getDay() + 6) % 7],
           minutes: history[k] ?? 0,
         };
       }),
@@ -71,9 +71,9 @@ export default function StatsPanel({ history, tasksDone }: Props) {
     [history]
   );
 
-  /* 12 周热力图（按周分列） */
+  /* 12-week heatmap (one column per week) */
   const heatWeeks = useMemo(() => {
-    const start = addDays(mondayOf(today), -77); // 11 周前周一
+    const start = addDays(mondayOf(today), -77); // Monday, 11 weeks ago
     return Array.from({ length: 12 }, (_, w) => ({
       cells: Array.from({ length: 7 }, (_, d) => {
         const day = addDays(start, w * 7 + d);
@@ -89,18 +89,19 @@ export default function StatsPanel({ history, tasksDone }: Props) {
   const streak = streakOf(history);
   const best = bestDay(history);
   const todayMin = history[todayKey] ?? 0;
-  const avg = Math.round(Object.values(history).filter((v) => v > 0).reduce((a, b) => a + b, 0) / Math.max(1, Object.values(history).filter((v) => v > 0).length));
+  const activeDays = Object.values(history).filter((v) => v > 0);
+  const avg = Math.round(activeDays.reduce((a, b) => a + b, 0) / Math.max(1, activeDays.length));
 
   const stats = [
-    { icon: TimerReset, label: "累计专注", value: fmtMinutes(total), tone: "var(--cinnabar)", big: true },
-    { icon: Flame, label: "连续天数", value: `${streak} 天`, tone: "var(--amber)" },
-    { icon: TrendingUp, label: "有效日均", value: `${avg} 分`, tone: "var(--jade)" },
-    { icon: Award, label: "单日峰值", value: fmtHM(best), tone: "var(--cobalt)" },
+    { icon: TimerReset, label: "Total Focus", value: fmtMinutes(total), tone: "var(--cinnabar)", big: true },
+    { icon: Flame, label: "Day Streak", value: `${streak} days`, tone: "var(--amber)" },
+    { icon: TrendingUp, label: "Avg. Active Day", value: `${avg} min`, tone: "var(--jade)" },
+    { icon: Award, label: "Best Day", value: fmtHM(best), tone: "var(--cobalt)" },
   ];
 
   return (
     <section id="sec-stats" className="grid gap-5 lg:grid-cols-5">
-      {/* 记录条 —— 非对称：首项放大 */}
+      {/* Record strip — asymmetric: first item oversized */}
       <div className="panel card-lift relative overflow-hidden rounded-xl p-6 lg:col-span-5">
         <div className="pointer-events-none absolute -right-8 -top-10 h-40 w-40 rounded-full blur-2xl" style={{ background: "var(--glow-a)" }} />
         <div className="flex flex-wrap items-end gap-x-10 gap-y-6">
@@ -125,7 +126,7 @@ export default function StatsPanel({ history, tasksDone }: Props) {
               </p>
               {s.big && (
                 <p className="mt-2 text-xs" style={{ color: "var(--ink-faint)" }}>
-                  今日已累积 <b className="font-display" style={{ color: "var(--ink)" }}>{todayMin}</b> 分钟 · 完成任务 <b className="font-display" style={{ color: "var(--jade)" }}>{tasksDone}</b> 项
+                  <b className="font-display" style={{ color: "var(--ink)" }}>{todayMin}</b> min logged today · <b className="font-display" style={{ color: "var(--jade)" }}>{tasksDone}</b> tasks done
                 </p>
               )}
             </motion.div>
@@ -133,15 +134,15 @@ export default function StatsPanel({ history, tasksDone }: Props) {
         </div>
       </div>
 
-      {/* 柱状图 */}
+      {/* Bar chart */}
       <div className="panel card-lift rounded-xl p-6 lg:col-span-3">
         <div className="flex items-baseline justify-between">
           <div>
             <span className="label-xs font-display">LAST 7 DAYS</span>
-            <h3 className="mt-1 text-lg font-bold">近七日专注曲线</h3>
+            <h3 className="mt-1 text-lg font-bold">Daily focus minutes</h3>
           </div>
           <span className="font-display tabular text-sm font-semibold" style={{ color: "var(--cinnabar)" }}>
-            {week.reduce((a, b) => a + b.minutes, 0)} 分 / 周
+            {week.reduce((a, b) => a + b.minutes, 0)} min / wk
           </span>
         </div>
         <div className="mt-4 h-[220px]">
@@ -166,19 +167,19 @@ export default function StatsPanel({ history, tasksDone }: Props) {
         </div>
       </div>
 
-      {/* 热力图 */}
+      {/* Heatmap */}
       <div className="panel card-lift rounded-xl p-6 lg:col-span-2">
         <div className="flex items-baseline justify-between">
           <div>
             <span className="label-xs font-display">12-WEEK GRID</span>
-            <h3 className="mt-1 text-lg font-bold">专注热力图</h3>
+            <h3 className="mt-1 text-lg font-bold">Focus heatmap</h3>
           </div>
           <div className="flex items-center gap-1.5 text-[10px]" style={{ color: "var(--ink-faint)" }}>
-            少
+            Less
             {[0, 45, 90, 150, 210].map((m) => (
               <span key={m} className="h-2.5 w-2.5 rounded-[3px]" style={{ background: heatColor(m) }} />
             ))}
-            多
+            More
           </div>
         </div>
         <div className="mt-5 flex justify-between">
@@ -196,7 +197,7 @@ export default function StatsPanel({ history, tasksDone }: Props) {
                   ) : (
                     <span
                       key={c.k}
-                      title={`${c.k} · ${c.minutes} 分钟`}
+                      title={`${c.k} · ${c.minutes} min`}
                       className="heat-cell h-[15px] w-[15px] rounded-[3px]"
                       style={{ background: heatColor(c.minutes) }}
                     />
@@ -207,8 +208,8 @@ export default function StatsPanel({ history, tasksDone }: Props) {
           </div>
         </div>
         <p className="mt-5 border-t border-[var(--line)] pt-3 text-xs leading-relaxed" style={{ color: "var(--ink-faint)" }}>
-          每一格是一天。颜色越深，沉浸越久 ——
-          <span style={{ color: "var(--cinnabar)" }}> 朱砂色</span> 代表单日超过 3 小时的深度工作日。
+          Each square is one day. Deeper color, deeper focus —
+          <span style={{ color: "var(--cinnabar)" }}> cinnabar</span> marks days past three hours of deep work.
         </p>
       </div>
     </section>

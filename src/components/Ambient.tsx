@@ -10,7 +10,7 @@ interface Mote {
   color: string;
 }
 
-/** 分层环境背景：网格 + 漂移光晕 + 上升微粒 + 噪点 */
+/** Layered ambient background: grid + drifting glows + rising motes + noise */
 export default function Ambient() {
   const motes = useMemo<Mote[]>(() => {
     const colors = ["var(--cinnabar)", "var(--amber)", "var(--jade)", "var(--cobalt)"];
@@ -27,9 +27,9 @@ export default function Ambient() {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden>
-      {/* 网格 */}
+      {/* Grid */}
       <div className="bg-grid-layer absolute inset-0" />
-      {/* 漂移光晕 */}
+      {/* Drifting glows */}
       <div
         className="glow-a absolute -top-[20%] -left-[12%] h-[62vh] w-[52vw] rounded-full blur-3xl"
         style={{ background: "radial-gradient(circle, var(--glow-a) 0%, transparent 65%)" }}
@@ -42,7 +42,7 @@ export default function Ambient() {
         className="glow-a absolute -bottom-[24%] left-[22%] h-[54vh] w-[44vw] rounded-full blur-3xl"
         style={{ background: "radial-gradient(circle, var(--glow-c) 0%, transparent 65%)", animationDelay: "-9s" }}
       />
-      {/* 上升微粒 */}
+      {/* Rising motes */}
       {motes.map((m, i) => (
         <span
           key={i}
@@ -61,7 +61,7 @@ export default function Ambient() {
           }
         />
       ))}
-      {/* 噪点 */}
+      {/* Noise */}
       <div className="noise-layer absolute inset-0" />
     </div>
   );

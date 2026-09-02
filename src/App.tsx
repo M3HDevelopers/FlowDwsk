@@ -32,7 +32,7 @@ import {
   type Task,
 } from "./lib/core";
 
-/* ── 主题 Hook：响应脚手架 data-theme，并可手动切换 ── */
+/* ── Theme hook: reacts to the scaffold's data-theme and allows manual toggling ── */
 function useTheme() {
   const read = () =>
     (document.documentElement.getAttribute("data-theme") as "light" | "dark") || "light";
@@ -55,50 +55,50 @@ function useTheme() {
 }
 
 const greeting = (h: number) =>
-  h < 6 ? ["夜深了", "世界很静，正适合潜入心流。"]
-    : h < 9 ? ["清晨好", "一日之计，从一块 25 分钟开始。"]
-    : h < 12 ? ["上午好", "头脑最锋利的时段，留给最难的事。"]
-    : h < 14 ? ["午安", "小憩之后，再战一轮。"]
-    : h < 18 ? ["下午好", "保持节奏，番茄一个接一个。"]
-    : h < 22 ? ["晚上好", "收尾今天的深度工作。"]
-    : ["夜深了", "最后一轮专注，然后好好休息。"];
+  h < 6 ? ["Late night", "The world is quiet — perfect for slipping into flow."]
+    : h < 9 ? ["Good morning", "Start the day with one 25-minute block."]
+    : h < 12 ? ["Good morning", "Your sharpest hours — spend them on the hardest thing."]
+    : h < 14 ? ["Good afternoon", "Post-lunch dip? One short block gets you back."]
+    : h < 18 ? ["Good afternoon", "Keep the rhythm — one pomodoro at a time."]
+    : h < 22 ? ["Good evening", "Close out today's deep work."]
+    : ["Late night", "One last focus round, then rest well."];
 
 const SECTIONS = [
-  { id: "sec-timer", label: "工作台", icon: Gauge },
-  { id: "sec-tasks", label: "任务板", icon: ListChecks },
-  { id: "sec-stats", label: "统计", icon: BarChart3 },
+  { id: "sec-timer", label: "Console", icon: Gauge },
+  { id: "sec-tasks", label: "Tasks", icon: ListChecks },
+  { id: "sec-stats", label: "Stats", icon: BarChart3 },
 ];
 
 export default function App() {
   const { theme, toggle } = useTheme();
 
-  /* ── 任务 ── */
+  /* ── Tasks ── */
   const [tasks, setTasks] = useState<Task[]>(() => load<Task[]>("tasks", seedTasks()));
   const [activeId, setActiveId] = useState<string | null>(() => load<string | null>("active", null));
   useEffect(() => save("tasks", tasks), [tasks]);
   useEffect(() => save("active", activeId), [activeId]);
 
-  /* ── 历史 ── */
+  /* ── History ── */
   const [history, setHistory] = useState<Record<string, number>>(() =>
     load<Record<string, number>>("history", seedHistory())
   );
   useEffect(() => save("history", history), [history]);
 
-  /* ── 设置 ── */
+  /* ── Settings ── */
   const [soundOn, setSoundOn] = useState<boolean>(() => load("sound", true));
   useEffect(() => save("sound", soundOn), [soundOn]);
 
-  /* ── 计时器 ── */
+  /* ── Timer ── */
   const [mode, setMode] = useState<Mode>("focus");
   const [secondsLeft, setSecondsLeft] = useState(MODE_META.focus.minutes * 60);
   const [running, setRunning] = useState(false);
   const [cyclePos, setCyclePos] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
-  const minuteAccum = useRef(0); // 不足一分钟的秒数累计
+  const minuteAccum = useRef(0); // seconds accumulated toward the next full minute
 
   const todayKey = dateKey(new Date());
 
-  /* 完成一节 */
+  /* Finish a block */
   const complete = useCallback(
     (finished: Mode) => {
       setRunning(false);
@@ -116,18 +116,18 @@ export default function App() {
           colors: ["#f0603f", "#e8b04b", "#4fb89a", "#7d9cc9", "#e9e4d8", "#d9482b"],
           disableForReducedMotion: true,
         });
-        setToast(`第 ${cyclePos + 1} 轮专注完成 · +25 分钟已入账`);
+        setToast(`Round ${cyclePos + 1} complete · +25 min logged`);
       } else {
         setMode("focus");
         setSecondsLeft(MODE_META.focus.minutes * 60);
-        setToast(finished === "long" ? "长休结束，精神焕发，开始新一轮" : "短休结束，回到阵地");
+        setToast(finished === "long" ? "Long break over — fresh start, new round" : "Break's over — back to it");
       }
       window.setTimeout(() => setToast(null), 3200);
     },
     [cyclePos, soundOn]
   );
 
-  /* 每秒心跳 */
+  /* Per-second heartbeat */
   useEffect(() => {
     if (!running) return;
     const t = window.setInterval(() => {
@@ -138,7 +138,7 @@ export default function App() {
         }
         return s - 1;
       });
-      /* 专注模式：每累计满 60 秒入账 1 分钟 */
+      /* Focus mode: bank 1 minute for every 60 accumulated seconds */
       if (mode === "focus") {
         minuteAccum.current += 1;
         if (minuteAccum.current >= 60) {
@@ -150,16 +150,16 @@ export default function App() {
     return () => window.clearInterval(t);
   }, [running, mode, todayKey, complete]);
 
-  /* 标题栏倒计时 */
+  /* Title-bar countdown */
   useEffect(() => {
     const mm = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
     const ss = String(secondsLeft % 60).padStart(2, "0");
     document.title = running
-      ? `${mm}:${ss} · ${MODE_META[mode].label}中 — FLOWDESK`
-      : "FLOWDESK 心流工作台 · 专注 · 任务 · 统计";
+      ? `${mm}:${ss} · ${MODE_META[mode].label} — FLOWDESK`
+      : "FLOWDESK · Deep-Work Console — Focus · Tasks · Stats";
   }, [secondsLeft, running, mode]);
 
-  /* 空格键控制 */
+  /* Spacebar control */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
@@ -197,14 +197,14 @@ export default function App() {
     setSecondsLeft(MODE_META[m].minutes * 60);
   };
 
-  /* ── 时钟 ── */
+  /* ── Clock ── */
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const t = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(t);
   }, []);
 
-  /* ── 导航高亮 ── */
+  /* ── Nav highlight ── */
   const [activeSec, setActiveSec] = useState("sec-timer");
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -224,10 +224,10 @@ export default function App() {
   const [greetTitle, greetSub] = greeting(now.getHours());
   const todayMin = history[todayKey] ?? 0;
 
-  const dateStr = useMemo(() => {
-    const week = ["日", "一", "二", "三", "四", "五", "六"];
-    return `${now.getMonth() + 1} 月 ${now.getDate()} 日 · 周${week[now.getDay()]}`;
-  }, [now]);
+  const dateStr = useMemo(
+    () => now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
+    [now]
+  );
 
   const streak = useMemo(() => {
     let s = 0;
@@ -245,15 +245,15 @@ export default function App() {
       <Ambient />
 
       <div className="relative z-10 mx-auto flex max-w-[1440px]">
-        {/* ── 侧边导航轨 ── */}
+        {/* ── Sidebar nav rail ── */}
         <aside className="sticky top-0 hidden h-screen w-[76px] shrink-0 flex-col items-center border-r border-[var(--line)] py-6 lg:flex">
-          {/* 印章 Logo */}
+          {/* Seal-style logo */}
           <div
             className="font-display flex h-11 w-11 items-center justify-center rounded-lg text-lg font-bold text-white shadow-lg"
             style={{ background: "linear-gradient(135deg, var(--cinnabar), #a33322)" }}
-            title="FLOWDESK 心流工作台"
+            title="FLOWDESK · Deep-Work Console"
           >
-            流
+            F
           </div>
           <nav className="mt-10 flex flex-col gap-2">
             {SECTIONS.map((s) => {
@@ -289,7 +289,7 @@ export default function App() {
               onClick={() => setSoundOn((v) => !v)}
               className="btn-ghost rounded-lg border border-[var(--line)] p-2.5"
               style={{ color: "var(--ink-soft)" }}
-              title={soundOn ? "关闭提示音" : "开启提示音"}
+              title={soundOn ? "Mute sounds" : "Unmute sounds"}
             >
               {soundOn ? <Volume2 size={17} /> : <VolumeX size={17} />}
             </button>
@@ -297,7 +297,7 @@ export default function App() {
               onClick={toggle}
               className="btn-ghost rounded-lg border border-[var(--line)] p-2.5"
               style={{ color: "var(--ink-soft)" }}
-              title="切换主题"
+              title="Toggle theme"
             >
               {theme === "light" ? <Moon size={17} /> : <Sun size={17} />}
             </button>
@@ -307,9 +307,9 @@ export default function App() {
           </div>
         </aside>
 
-        {/* ── 主区域 ── */}
+        {/* ── Main area ── */}
         <main className="min-w-0 flex-1 px-4 pb-16 sm:px-8">
-          {/* 顶栏 */}
+          {/* Top bar */}
           <header className="sticky top-0 z-30 -mx-4 mb-6 border-b border-[var(--line)] px-4 py-4 backdrop-blur-md sm:-mx-8 sm:px-8" style={{ background: "color-mix(in srgb, var(--bg) 82%, transparent)" }}>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
               <div className="min-w-0">
@@ -318,19 +318,19 @@ export default function App() {
                     className="font-display flex h-7 w-7 items-center justify-center rounded-md text-sm font-bold text-white lg:hidden"
                     style={{ background: "linear-gradient(135deg, var(--cinnabar), #a33322)" }}
                   >
-                    流
+                    F
                   </span>
                   <h1 className="font-display text-lg font-bold tracking-tight">
                     FLOWDESK
-                    <span className="ml-2 text-sm font-medium" style={{ color: "var(--ink-faint)" }}>心流工作台</span>
+                    <span className="ml-2 text-sm font-medium" style={{ color: "var(--ink-faint)" }}>Deep-Work Console</span>
                   </h1>
                 </div>
                 <p className="mt-0.5 truncate text-xs" style={{ color: "var(--ink-soft)" }}>
-                  {greetTitle} —— {greetSub}
+                  {greetTitle} — {greetSub}
                 </p>
               </div>
 
-              {/* 移动端操作 */}
+              {/* Mobile actions */}
               <div className="ml-auto flex items-center gap-2 lg:hidden">
                 <button onClick={() => setSoundOn((v) => !v)} className="btn-ghost rounded-lg border border-[var(--line)] p-2" style={{ color: "var(--ink-soft)" }}>
                   {soundOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
@@ -344,21 +344,21 @@ export default function App() {
                 <div className="flex items-center gap-2 rounded-full border border-[var(--line)] px-4 py-1.5" style={{ background: "var(--panel)" }}>
                   <Flame size={15} style={{ color: streak > 0 ? "var(--amber)" : "var(--ink-faint)" }} />
                   <span className="font-display tabular text-sm font-bold">{streak}</span>
-                  <span className="text-xs" style={{ color: "var(--ink-faint)" }}>天连续</span>
+                  <span className="text-xs" style={{ color: "var(--ink-faint)" }}>day streak</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-full border border-[var(--line)] px-4 py-1.5" style={{ background: "var(--panel)" }}>
                   <span className="h-2 w-2 rounded-full" style={{ background: todayMin > 0 ? "var(--jade)" : "var(--ink-faint)" }} />
                   <span className="font-display tabular text-sm font-bold">{todayMin}</span>
-                  <span className="text-xs" style={{ color: "var(--ink-faint)" }}>分钟 / 今日</span>
+                  <span className="text-xs" style={{ color: "var(--ink-faint)" }}>min / today</span>
                 </div>
                 <div className="text-right">
-                  <p className="font-display tabular text-xl font-bold leading-none">{now.toLocaleTimeString("zh-CN", { hour12: false })}</p>
+                  <p className="font-display tabular text-xl font-bold leading-none">{now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</p>
                   <p className="mt-0.5 text-[11px]" style={{ color: "var(--ink-faint)" }}>{dateStr}</p>
                 </div>
               </div>
             </div>
 
-            {/* 移动端锚点导航 */}
+            {/* Mobile anchor nav */}
             <nav className="mt-3 flex gap-2 lg:hidden">
               {SECTIONS.map((s) => (
                 <a
@@ -377,7 +377,7 @@ export default function App() {
             </nav>
           </header>
 
-          {/* 内容网格 */}
+          {/* Content grid */}
           <div className="grid gap-5 xl:grid-cols-5">
             <motion.div
               className="xl:col-span-3"
@@ -436,21 +436,21 @@ export default function App() {
             <StatsPanel history={history} tasksDone={tasks.filter((t) => t.done).length} />
           </motion.div>
 
-          {/* 页脚 */}
+          {/* Footer */}
           <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--line)] pt-5 text-xs" style={{ color: "var(--ink-faint)" }}>
             <p className="flex items-center gap-2">
               <Sparkles size={13} style={{ color: "var(--amber)" }} />
-              心流不是天赋，是节奏 —— 25 分钟一轮，把热爱熬成习惯。
+              Flow isn't a gift, it's a rhythm — 25 minutes a round, until the work you love becomes habit.
             </p>
             <p className="font-mono2 flex items-center gap-3">
               <span className="hidden items-center gap-1.5 sm:flex">
-                <kbd className="rounded border border-[var(--line)] px-1.5 py-0.5">Space</kbd> 计时
+                <kbd className="rounded border border-[var(--line)] px-1.5 py-0.5">Space</kbd> timer
               </span>
               <span>
                 {activeTask && !activeTask.done ? (
-                  <>当前目标 · <b style={{ color: PRIORITY_META[activeTask.priority].dot }}>{activeTask.title}</b></>
+                  <>Current target · <b style={{ color: PRIORITY_META[activeTask.priority].dot }}>{activeTask.title}</b></>
                 ) : (
-                  "FLOWDESK · 本地存储已开启"
+                  "FLOWDESK · saved locally"
                 )}
               </span>
             </p>
@@ -458,7 +458,7 @@ export default function App() {
         </main>
       </div>
 
-      {/* 完成提示 Toast */}
+      {/* Completion toast */}
       <AnimatePresence>
         {toast && (
           <motion.div

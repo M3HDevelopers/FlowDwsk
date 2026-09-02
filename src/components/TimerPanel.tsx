@@ -6,7 +6,7 @@ interface Props {
   mode: Mode;
   secondsLeft: number;
   running: boolean;
-  cyclePos: number; // 0..3 当前周期内完成的专注数
+  cyclePos: number; // 0..3 focus rounds completed within the current cycle
   activeTask?: string;
   onToggle: () => void;
   onReset: () => void;
@@ -36,7 +36,7 @@ export default function TimerPanel({
 
   return (
     <section id="sec-timer" className="panel relative overflow-hidden rounded-xl p-6 sm:p-8">
-      {/* 角落装饰刻度 */}
+      {/* Decorative tick marks along the top edge */}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-between px-8 pt-6 opacity-40">
         {Array.from({ length: 24 }).map((_, i) => (
           <span key={i} className="h-2 w-px" style={{ background: "var(--line-strong)" }} />
@@ -44,7 +44,7 @@ export default function TimerPanel({
       </div>
 
       <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto]">
-        {/* 左：模式切换 + 大字 + 控制 */}
+        {/* Left: mode switch + big digits + controls */}
         <div>
           <div className="flex flex-wrap items-center gap-2">
             {(Object.keys(MODE_META) as Mode[]).map((m) => {
@@ -90,23 +90,23 @@ export default function TimerPanel({
               ) : (
                 <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: "var(--ink-faint)" }} />
               )}
-              <span className="label-xs">{running ? "进行中" : "已暂停"}</span>
+              <span className="label-xs">{running ? "Running" : "Paused"}</span>
             </div>
           </div>
 
-          {/* 当前聚焦任务 */}
+          {/* Current focus task */}
           <div className="mt-3 flex min-h-[26px] items-center gap-2 text-sm" style={{ color: "var(--ink-soft)" }}>
             <Crosshair size={15} style={{ color: meta.color }} />
             {activeTask ? (
               <span>
-                正在攻坚 <b style={{ color: "var(--ink)" }}>「{activeTask}」</b>
+                Working on <b style={{ color: "var(--ink)" }}>“{activeTask}”</b>
               </span>
             ) : (
-              <span className="opacity-70">尚未选定任务 — 在右侧任务板点击靶心开始</span>
+              <span className="opacity-70">No task targeted yet — hit the crosshair on the board</span>
             )}
           </div>
 
-          {/* 控制区 */}
+          {/* Controls */}
           <div className="mt-7 flex flex-wrap items-center gap-3">
             <motion.button
               whileTap={{ scale: 0.94 }}
@@ -115,29 +115,29 @@ export default function TimerPanel({
               style={{ background: running ? "var(--ink)" : meta.color }}
             >
               {running ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="translate-x-[1px]" />}
-              {running ? "暂停" : secondsLeft < total ? "继续" : "开始专注"}
+              {running ? "Pause" : secondsLeft < total ? "Resume" : "Start Focus"}
             </motion.button>
             <button
               onClick={onReset}
               className="btn-ghost flex items-center gap-2 rounded-full border border-[var(--line)] px-5 py-3.5 text-sm font-medium"
               style={{ color: "var(--ink-soft)" }}
             >
-              <RotateCcw size={16} /> 重置
+              <RotateCcw size={16} /> Reset
             </button>
             <button
               onClick={onSkip}
               className="btn-ghost flex items-center gap-2 rounded-full border border-[var(--line)] px-5 py-3.5 text-sm font-medium"
               style={{ color: "var(--ink-soft)" }}
             >
-              <SkipForward size={16} /> 跳过
+              <SkipForward size={16} /> Skip
             </button>
             <kbd className="font-mono2 ml-auto hidden rounded-md border border-[var(--line)] px-2.5 py-1.5 text-[11px] sm:inline" style={{ color: "var(--ink-faint)" }}>
-              Space 开始 / 暂停
+              Space — start / pause
             </kbd>
           </div>
         </div>
 
-        {/* 右：进度环 + 周期点 */}
+        {/* Right: progress ring + cycle dots */}
         <div className="relative mx-auto">
           <svg width="320" height="320" viewBox="0 0 320 320" className={running ? "" : "ring-breathe"}>
             <defs>
@@ -146,7 +146,7 @@ export default function TimerPanel({
                 <stop offset="100%" stopColor="var(--amber)" />
               </linearGradient>
             </defs>
-            {/* 外圈刻度 */}
+            {/* Outer tick ring */}
             <g className="spin-slow" style={{ transformOrigin: "160px 160px" }}>
               {Array.from({ length: 60 }).map((_, i) => (
                 <line
@@ -177,12 +177,12 @@ export default function TimerPanel({
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="label-xs">本轮进度</span>
+            <span className="label-xs">Session</span>
             <span className="font-display tabular mt-1 text-4xl font-bold" style={{ color: meta.color }}>
               {Math.round(frac * 100)}
               <span className="text-lg">%</span>
             </span>
-            {/* 周期点：四次专注换一次长休 */}
+            {/* Cycle dots: a long break every four focus rounds */}
             <div className="mt-3 flex items-center gap-2">
               {[0, 1, 2, 3].map((i) => (
                 <span
@@ -195,7 +195,7 @@ export default function TimerPanel({
                 />
               ))}
             </div>
-            <span className="label-xs mt-2">{4 - cyclePos > 0 ? `距长休还有 ${4 - cyclePos} 轮` : "该长休了"}</span>
+            <span className="label-xs mt-2">{4 - cyclePos > 0 ? `${4 - cyclePos} rounds to long break` : "Long break is next"}</span>
           </div>
         </div>
       </div>

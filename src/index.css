@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
-/* ───────────────────────── 主题令牌 ───────────────────────── */
+/* ───────────────────────── Theme tokens ───────────────────────── */
 :root,
 :root[data-theme="light"] {
   --bg: #f2f1ea;
@@ -97,7 +97,7 @@ body {
   color: #fff;
 }
 
-/* 滚动条 */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -112,7 +112,7 @@ body {
   background: transparent;
 }
 
-/* ───────────────────────── 环境层 ───────────────────────── */
+/* ───────────────────────── Ambient layers ───────────────────────── */
 .bg-grid-layer {
   background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
@@ -151,7 +151,7 @@ body {
   will-change: transform, opacity;
 }
 
-/* ───────────────────────── 计时器 ───────────────────────── */
+/* ───────────────────────── Timer ───────────────────────── */
 @keyframes ring-breathe {
   0%, 100% { opacity: 0.55; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.012); }
@@ -169,7 +169,7 @@ body {
 }
 .spin-slow { animation: spin-slow 60s linear infinite; }
 
-/* ───────────────────────── 组件基元 ───────────────────────── */
+/* ───────────────────────── Component primitives ───────────────────────── */
 .panel {
   background: var(--panel);
   border: 1px solid var(--line);

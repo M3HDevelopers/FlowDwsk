@@ -67,7 +67,7 @@ function SortableRow({
       />
       <button
         {...listeners}
-        aria-label="拖动排序"
+        aria-label="Drag to reorder"
         className="relative z-10 cursor-grab touch-none rounded p-0.5 active:cursor-grabbing"
         style={{ color: "var(--ink-faint)" }}
       >
@@ -75,7 +75,7 @@ function SortableRow({
       </button>
       <button
         onClick={onToggle}
-        aria-label="完成切换"
+        aria-label="Toggle done"
         className="relative z-10 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-all duration-200"
         style={{
           borderColor: task.done ? p.dot : "var(--line-strong)",
@@ -111,7 +111,7 @@ function SortableRow({
       </span>
       <button
         onClick={onTarget}
-        title="设为当前专注任务"
+        title="Set as current focus task"
         className="btn-ghost relative z-10 rounded-md border border-transparent p-1.5"
         style={{ color: active ? p.dot : "var(--ink-faint)", background: active ? p.cls : undefined }}
       >
@@ -119,7 +119,7 @@ function SortableRow({
       </button>
       <button
         onClick={onRemove}
-        aria-label="删除任务"
+        aria-label="Remove task"
         className="relative z-10 rounded-md p-1.5 opacity-0 transition-all duration-200 group-hover:opacity-100 hover:!bg-[var(--cinnabar-soft)]"
         style={{ color: "var(--ink-faint)" }}
         onMouseEnter={(e) => (e.currentTarget.style.color = "var(--cinnabar)")}
@@ -165,7 +165,7 @@ export default function TaskPanel({ tasks, activeId, onReorder, onAdd, onToggle,
         <div>
           <span className="label-xs font-display">TASK BOARD</span>
           <h2 className="mt-1 flex items-center gap-2 text-lg font-bold">
-            <ListChecks size={18} style={{ color: "var(--cinnabar)" }} /> 今日任务
+            <ListChecks size={18} style={{ color: "var(--cinnabar)" }} /> Today's Tasks
           </h2>
         </div>
         <div className="text-right">
@@ -173,11 +173,11 @@ export default function TaskPanel({ tasks, activeId, onReorder, onAdd, onToggle,
             {doneCount}
             <span className="text-sm" style={{ color: "var(--ink-faint)" }}>/{tasks.length}</span>
           </span>
-          <p className="label-xs">已完成</p>
+          <p className="label-xs">done</p>
         </div>
       </header>
 
-      {/* 进度条 */}
+      {/* Progress bar */}
       <div className="mt-4 h-1.5 overflow-hidden rounded-full" style={{ background: "var(--ring-track)" }}>
         <motion.div
           className="h-full rounded-full"
@@ -187,13 +187,13 @@ export default function TaskPanel({ tasks, activeId, onReorder, onAdd, onToggle,
         />
       </div>
 
-      {/* 输入 */}
+      {/* Input */}
       <div className="mt-4 flex gap-2">
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder="添加任务，回车确认…"
+          placeholder="Add a task, press Enter…"
           className="min-w-0 flex-1 rounded-lg border border-[var(--line)] bg-transparent px-3.5 py-2.5 text-sm transition-colors placeholder:text-[var(--ink-faint)] focus:border-[var(--cinnabar)]"
           style={{ color: "var(--ink)", background: "var(--panel-2)" }}
         />
@@ -203,14 +203,14 @@ export default function TaskPanel({ tasks, activeId, onReorder, onAdd, onToggle,
           className="rounded-lg border border-[var(--line)] px-2 text-xs font-medium"
           style={{ background: "var(--panel-2)", color: "var(--ink-soft)" }}
         >
-          <option value="high">紧急</option>
-          <option value="mid">常规</option>
-          <option value="low">从容</option>
+          <option value="high">High</option>
+          <option value="mid">Normal</option>
+          <option value="low">Low</option>
         </select>
         <motion.button
           whileTap={{ scale: 0.92 }}
           onClick={submit}
-          aria-label="添加任务"
+          aria-label="Add task"
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white shadow-md transition-colors hover:brightness-110"
           style={{ background: "var(--cinnabar)" }}
         >
@@ -218,13 +218,13 @@ export default function TaskPanel({ tasks, activeId, onReorder, onAdd, onToggle,
         </motion.button>
       </div>
 
-      {/* 筛选 */}
+      {/* Filters */}
       <div className="mt-4 flex gap-1.5">
         {(
           [
-            ["all", "全部"],
-            ["doing", "进行中"],
-            ["done", "已完成"],
+            ["all", "All"],
+            ["doing", "Active"],
+            ["done", "Done"],
           ] as [Filter, string][]
         ).map(([k, label]) => (
           <button
@@ -241,10 +241,10 @@ export default function TaskPanel({ tasks, activeId, onReorder, onAdd, onToggle,
         ))}
       </div>
 
-      {/* 列表 */}
+      {/* List */}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={visible.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-          <ul className="mt-3 flex flex-col gap-2 overflow-y-auto pr-0.5" style={{ maxHeight: 380 }}>
+          <div className="mt-3 flex flex-col gap-2 overflow-y-auto pr-0.5" style={{ maxHeight: 380 }}>
             <AnimatePresence initial={false}>
               {visible.map((t) => (
                 <motion.div
@@ -265,14 +265,14 @@ export default function TaskPanel({ tasks, activeId, onReorder, onAdd, onToggle,
                 </motion.div>
               ))}
             </AnimatePresence>
-          </ul>
+          </div>
         </SortableContext>
       </DndContext>
 
       {visible.length === 0 && (
         <div className="mt-6 flex flex-col items-center gap-2 py-8 text-center" style={{ color: "var(--ink-faint)" }}>
           <ListChecks size={28} strokeWidth={1.4} />
-          <p className="text-sm">{filter === "done" ? "还没有完成的任务，加油！" : "清单空空如也，写下第一件事吧"}</p>
+          <p className="text-sm">{filter === "done" ? "Nothing checked off yet — you've got this!" : "The list is empty — jot down your first task"}</p>
         </div>
       )}
     </section>
