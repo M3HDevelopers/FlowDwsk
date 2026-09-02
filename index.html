@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FLOWDESK · Deep-Work Console — Focus · Tasks · Stats</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* Inline styles so the theme color applies instantly, avoiding a flash */
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
+      }
+      html.light,
+      html.light body {
+        background-color: #f2f1ea !important;
+        color: #20242c;
+      }
+      html.dark,
+      html.dark body {
+        background-color: #0e1114 !important;
+        color: #e9e4d8;
+      }
+    </style>
+    <script>
+      // Set the theme immediately, before React loads, to avoid a flash
+      (function () {
+        const isInIframe = window.self !== window.top;
+
+        function applyThemeToDOM(theme) {
+          document.documentElement.classList.remove("light", "dark");
+          document.documentElement.classList.add(theme);
+          document.documentElement.setAttribute("data-theme", theme);
+        }
+
+        if (isInIframe) {
+          // Listen for theme messages pushed by the parent window
+          window.addEventListener("message", function (event) {
+            if (event.data && typeof event.data.theme === "string") {
+              const theme = event.data.theme;
+              if (theme === "light" || theme === "dark") {
+                applyThemeToDOM(theme);
+              }
+            }
+          });
+        } else {
+          // Outside an iframe, default to the light theme
+          applyThemeToDOM("light");
+        }
+      })();
+    </script>
+      <script>
+      (function () {
+        if (window.self === window.top) return;
+        var reported = {};
+        window.addEventListener("error", function (event) {
+          // error events from failed resource loads have no message; only report JS runtime errors
+          if (!event || !event.message) return;
+          var key =
+            event.message + "|" + (event.filename || "") + "|" + event.lineno;
+          if (reported[key]) return; // report the same error only once to avoid flooding the render loop
+          reported[key] = true;
+          try {
+            window.parent.postMessage(
+              {
+                type: "sandbox-runtime-error",
+                payload: {
+                  message: String(event.message).slice(0, 500),
+                  filename: String(event.filename || ""),
+                  lineno: Number(event.lineno || 0),
+                  colno: Number(event.colno || 0),
+                  stack: String(
+                    (event.error && event.error.stack) || ""
+                  ).slice(0, 2000)
+                }
+              },
+              "*"
+            );
+          } catch (e) {
+            /* reporting failures must never break the page */
+          }
+        });
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

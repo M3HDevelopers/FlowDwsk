@@ -1,0 +1,224 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+/* ───────────────────────── Theme tokens ───────────────────────── */
+:root,
+:root[data-theme="light"] {
+  --bg: #f2f1ea;
+  --bg-deep: #eae8de;
+  --panel: #fbfaf5;
+  --panel-2: #f5f3ea;
+  --line: rgba(32, 36, 44, 0.12);
+  --line-strong: rgba(32, 36, 44, 0.22);
+  --ink: #20242c;
+  --ink-soft: #5c6169;
+  --ink-faint: #8b8f96;
+  --cinnabar: #d9482b;
+  --cinnabar-soft: rgba(217, 72, 43, 0.12);
+  --amber: #b97e14;
+  --amber-soft: rgba(185, 126, 20, 0.14);
+  --jade: #23836a;
+  --jade-soft: rgba(35, 131, 106, 0.13);
+  --cobalt: #3d5f8f;
+  --cobalt-soft: rgba(61, 95, 143, 0.13);
+  --ring-track: rgba(32, 36, 44, 0.09);
+  --glow-a: rgba(217, 72, 43, 0.07);
+  --glow-b: rgba(35, 131, 106, 0.07);
+  --glow-c: rgba(185, 126, 20, 0.06);
+  --shadow: 0 1px 2px rgba(32, 36, 44, 0.05), 0 12px 32px -16px rgba(32, 36, 44, 0.25);
+  --grid-line: rgba(32, 36, 44, 0.045);
+  --heat-0: rgba(32, 36, 44, 0.06);
+  --heat-1: rgba(35, 131, 106, 0.28);
+  --heat-2: rgba(35, 131, 106, 0.5);
+  --heat-3: rgba(185, 126, 20, 0.55);
+  --heat-4: rgba(217, 72, 43, 0.72);
+  --noise-op: 0.028;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0e1114;
+  --bg-deep: #0a0d10;
+  --panel: #151a20;
+  --panel-2: #12161b;
+  --line: rgba(233, 228, 216, 0.09);
+  --line-strong: rgba(233, 228, 216, 0.2);
+  --ink: #e9e4d8;
+  --ink-soft: #a8a496;
+  --ink-faint: #6d6a60;
+  --cinnabar: #f0603f;
+  --cinnabar-soft: rgba(240, 96, 63, 0.14);
+  --amber: #e8b04b;
+  --amber-soft: rgba(232, 176, 75, 0.13);
+  --jade: #4fb89a;
+  --jade-soft: rgba(79, 184, 154, 0.13);
+  --cobalt: #7d9cc9;
+  --cobalt-soft: rgba(125, 156, 201, 0.14);
+  --ring-track: rgba(233, 228, 216, 0.08);
+  --glow-a: rgba(240, 96, 63, 0.09);
+  --glow-b: rgba(79, 184, 154, 0.07);
+  --glow-c: rgba(232, 176, 75, 0.06);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 40px -18px rgba(0, 0, 0, 0.65);
+  --grid-line: rgba(233, 228, 216, 0.035);
+  --heat-0: rgba(233, 228, 216, 0.06);
+  --heat-1: rgba(79, 184, 154, 0.25);
+  --heat-2: rgba(79, 184, 154, 0.45);
+  --heat-3: rgba(232, 176, 75, 0.5);
+  --heat-4: rgba(240, 96, 63, 0.72);
+  --noise-op: 0.045;
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+body {
+  font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.font-display {
+  font-family: "Space Grotesk", "Noto Sans SC", sans-serif;
+}
+.font-mono2 {
+  font-family: "IBM Plex Mono", "Space Grotesk", monospace;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+::selection {
+  background: var(--cinnabar);
+  color: #fff;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ───────────────────────── Ambient layers ───────────────────────── */
+.bg-grid-layer {
+  background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 78%);
+}
+
+.noise-layer {
+  opacity: var(--noise-op);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes drift-a {
+  0%, 100% { transform: translate3d(-4%, -2%, 0) scale(1); }
+  50% { transform: translate3d(5%, 4%, 0) scale(1.12); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate3d(3%, 5%, 0) scale(1.05); }
+  50% { transform: translate3d(-5%, -4%, 0) scale(0.96); }
+}
+.glow-a { animation: drift-a 26s ease-in-out infinite; }
+.glow-b { animation: drift-b 32s ease-in-out infinite; }
+
+@keyframes floaty {
+  0% { transform: translateY(105vh) translateX(0); opacity: 0; }
+  8% { opacity: var(--p-op, 0.5); }
+  92% { opacity: var(--p-op, 0.5); }
+  100% { transform: translateY(-8vh) translateX(var(--p-dx, 30px)); opacity: 0; }
+}
+.particle {
+  position: absolute;
+  bottom: -4vh;
+  border-radius: 999px;
+  animation: floaty var(--p-dur, 30s) linear infinite;
+  animation-delay: var(--p-delay, 0s);
+  will-change: transform, opacity;
+}
+
+/* ───────────────────────── Timer ───────────────────────── */
+@keyframes ring-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.012); }
+}
+.ring-breathe { animation: ring-breathe 3.2s ease-in-out infinite; transform-origin: center; }
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.55); opacity: 0.55; }
+}
+.pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.spin-slow { animation: spin-slow 60s linear infinite; }
+
+/* ───────────────────────── Component primitives ───────────────────────── */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.label-xs {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+
+.btn-ghost {
+  transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-ghost:hover {
+  background: var(--cinnabar-soft);
+  color: var(--cinnabar);
+  border-color: transparent;
+}
+
+.card-lift {
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s, border-color 0.28s;
+}
+.card-lift:hover {
+  transform: translateY(-3px);
+  border-color: var(--line-strong);
+}
+
+.heat-cell {
+  transition: transform 0.18s ease, outline-color 0.18s ease;
+  outline: 1px solid transparent;
+  outline-offset: 1px;
+}
+.heat-cell:hover {
+  transform: scale(1.45);
+  outline-color: var(--line-strong);
+  z-index: 5;
+}
+
+input:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--cinnabar);
+  outline-offset: 2px;
+}
+
+@keyframes bar-grow {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
